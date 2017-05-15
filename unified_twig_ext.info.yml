@@ -1,0 +1,5 @@
+name: Unified Twig Extensions
+type: module
+description: Share Twig extensions across Pattern Lab and Drupal 8
+core: 8.x
+package: Drupal Pattern Lab
