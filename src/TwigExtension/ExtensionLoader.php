@@ -57,7 +57,7 @@ class ExtensionLoader {
     foreach (scandir($fullPath . $type) as $file) {
       $fileInfo = pathinfo($file);
       if ($fileInfo['extension'] === 'php') {
-        if ($file[0] != '.' && $file[0] != '_' && substr($file, 0, 2) != 'd_') {
+        if ($file[0] != '.' && $file[0] != '_' && substr($file, 0, 3) != 'pl_') {
           static::load($type, $fullPath . $type . '/' . $file);
         }
       }
