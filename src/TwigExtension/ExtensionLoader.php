@@ -46,18 +46,19 @@ class ExtensionLoader {
   static protected function loadAll($type) {
     $theme = \Drupal::config('system.theme')->get('default');
     $themeLocation = drupal_get_path('theme', $theme);
-    $fullPath = DRUPAL_ROOT . '/' . $themeLocation . '/' . 'pattern-lab/source/_twig-components/';
+    $themePath = DRUPAL_ROOT . '/' . $themeLocation . '/';
 
-    $fullPathAlt = DRUPAL_ROOT . '/' . $themeLocation . '/' . 'source/_twig-components/';
+    $extensionPaths = glob($themePath . '*/_twig-components/');
 
-    if (file_exists($fullPathAlt)){
-      $fullPath = $fullPathAlt;
-    }
-
-    foreach (scandir($fullPath . $type) as $file) {
-      if ($file[0] != '.' && $file[0] != '_') {
-        // print_r($file);
-        static::load($type, $fullPath . $type . '/' . $file);
+    foreach ($extensionPaths as $extensionPath) {
+      $fullPath = $extensionPath;
+      foreach (scandir($fullPath . $type) as $file) {
+        $fileInfo = pathinfo($file);
+        if ($fileInfo['extension'] === 'php') {
+          if ($file[0] != '.' && $file[0] != '_' && substr($file, 0, 3) != 'pl_') {
+            static::load($type, $fullPath . $type . '/' . $file);
+          }
+        }
       }
     }
   }
