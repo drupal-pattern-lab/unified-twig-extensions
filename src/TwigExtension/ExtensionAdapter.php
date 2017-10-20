@@ -1,7 +1,5 @@
 <?php
 
-use Drupal\unified_twig_ext\TwigExtension\ExtensionLoader;
-
 namespace Drupal\unified_twig_ext\TwigExtension;
 
 /**
