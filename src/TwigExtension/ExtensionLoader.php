@@ -2,18 +2,26 @@
 
 namespace Drupal\unified_twig_ext\TwigExtension;
 
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
+
 /**
  * Loads twig customizations from a dist directory.
  */
 class ExtensionLoader {
 
-  /** @var array */
-  static $objects = [];
+  /**
+   * Plugin objects.
+   *
+   * @var array
+   */
+  protected static $objects = [];
 
   /**
    * Loads a singleton registry of plugin objects.
    */
-  static public function init() {
+  public static function init() {
     if (!self::$objects) {
       static::loadAll('filters');
       static::loadAll('functions');
@@ -31,7 +39,7 @@ class ExtensionLoader {
    *   An array of loaded objects to be provided by the twig extension for a
    *   given type.
    */
-  static public function get($type) {
+  public static function get($type) {
     return !empty(self::$objects[$type]) ? self::$objects[$type] : [];
   }
 
@@ -43,23 +51,21 @@ class ExtensionLoader {
    * @param string $type
    *   The type to load all plugins for.
    */
-  static protected function loadAll($type) {
+  protected static function loadAll($type) {
     $theme = \Drupal::config('system.theme')->get('default');
     $themeLocation = drupal_get_path('theme', $theme);
     $themePath = DRUPAL_ROOT . '/' . $themeLocation . '/';
-
-    $extensionPaths = glob($themePath . '*/_twig-components/');
-
-    foreach ($extensionPaths as $extensionPath) {
-      $fullPath = $extensionPath;
-      foreach (scandir($fullPath . $type) as $file) {
-        $fileInfo = pathinfo($file);
-        if ($fileInfo['extension'] === 'php') {
-          if ($file[0] != '.' && $file[0] != '_' && substr($file, 0, 3) != 'pl_') {
-            static::load($type, $fullPath . $type . '/' . $file);
-          }
-        }
-      }
+    // Iterates recursively through theme to find Twig extensions.
+    $dir = new RecursiveDirectoryIterator($themePath);
+    $ite = new RecursiveIteratorIterator($dir);
+    // Searches for Twig extensions of $type.
+    // Excludes plugin names starting with: ".", "_", and "pl_".
+    $pattern = '/.*\/_twig-components\/' . $type . '\/(?!(?:\.|_|pl_)).*\.php/';
+    $files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH);
+    $files = array_keys(iterator_to_array($files));
+    // Loads each matching Twig extension that was found.
+    foreach ($files as $file) {
+      static::load($type, $file);
     }
   }
 
@@ -71,15 +77,17 @@ class ExtensionLoader {
    * @param string $file
    *   The fully qualified path of the plugin to be loaded.
    */
-  static protected function load($type, $file) {
+  protected static function load($type, $file) {
     include $file;
     switch ($type) {
       case 'filters':
         self::$objects['filters'][] = $filter;
         break;
+
       case 'functions':
         self::$objects['functions'][] = $function;
         break;
+
       case 'tags':
         if (preg_match('/^([^\.]+)\.tag\.php$/', basename($file), $matches)) {
           $class = "Project_{$matches[1]}_TokenParser";
@@ -90,4 +98,5 @@ class ExtensionLoader {
         break;
     }
   }
+
 }
