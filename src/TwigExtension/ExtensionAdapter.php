@@ -1,8 +1,8 @@
 <?php
 
-use Drupal\unified_twig_ext\TwigExtension\ExtensionLoader;
-
 namespace Drupal\unified_twig_ext\TwigExtension;
+
+use Drupal\unified_twig_ext\TwigExtension\ExtensionLoader;
 
 /**
  * Adapts pattern-lab extensions to Drupal.
