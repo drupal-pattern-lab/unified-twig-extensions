@@ -81,11 +81,11 @@ class ExtensionLoader {
     include $file;
     switch ($type) {
       case 'filters':
-        self::$objects['filters'][] = $filter;
+        self::$objects['filters'][] = $file;
         break;
 
       case 'functions':
-        self::$objects['functions'][] = $function;
+        self::$objects['functions'][] = $file;
         break;
 
       case 'tags':
