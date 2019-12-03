@@ -44,8 +44,7 @@ class ExtensionLoader {
    *   The type to load all plugins for.
    */
   static protected function loadAll($type) {
-    $theme = \Drupal::config('system.theme')->get('default');
-    $themeLocation = drupal_get_path('theme', $theme);
+    $themeLocation = \Drupal::service('theme.manager')->getActiveTheme()->getPath();
     $themePath = DRUPAL_ROOT . '/' . $themeLocation . '/';
 
     $extensionPaths = glob($themePath . '*/_twig-components/');
